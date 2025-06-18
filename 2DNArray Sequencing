@@ -1,0 +1,141 @@
+// Carlo Lesaca
+// 03/12/25
+// CSE 121
+// Prograaming Assignment 3: 2DNArray Sequencing
+// TA: Maitreyi Parakh
+// This program will find count a set of given nucleotides 
+// to calculate probability and create a likely dna sequence
+
+
+import java.util.*;
+
+public class Sequencing {
+
+    public static final char[] NUCLEOTIDES = {'A', 'C', 'G', 'T'};
+
+    public static void main(String[] args) {
+        //test set of sequences
+        String [] totalSequences = {"ACT", "CGC", "TAC", "CAT", "GAA"};
+
+       
+        // to test counts method
+        int [][] printCounts = counts(totalSequences);
+        for (int row = 0; row < printCounts.length ; row ++){
+            for (int col = 0; col < printCounts[row].length; col ++){
+                System.out.print(printCounts[row][col]+ " ");
+            }
+            System.out.println();      
+        }
+
+        //to  test probabilities method
+        double [][] printProbs = probabilities(counts(totalSequences));
+        for (int row = 0; row < printProbs.length ; row ++){
+            for (int col = 0; col < printProbs[row].length; col ++){
+                System.out.print(printProbs[row][col]+ " ");
+            }
+            System.out.println();      
+        }
+
+        //to test results method
+        String [] printPred = result(probabilities(counts(totalSequences)));
+        System.out.println(Arrays.toString(printPred));
+    
+    }
+
+     /*
+    B: This method takes a char and finds the index of said char in NUCLEOTIDES class constant
+    R: Returns the value of the index of said char, if dne, returns -1
+    P: char is paramterized and used to compare its value to a char in NUCLEOTIDES class constant
+    */
+    public static int indexOfNucleotide(char nucleotide) {
+        for (int i = 0; i< NUCLEOTIDES.length; i++){
+            if (nucleotide == NUCLEOTIDES[i]){
+                return i;
+            }   
+        }
+        return -1;
+     }
+    
+    /*
+    B: This method counts the frequency of each nucleotide at every position
+    R: Returns a 2d int array of the frequency of each nucleotide
+    P: A string array is parameterized and is used to evaluate each nucleotide
+    */
+    public static int[][] counts(String[] totalSequences) {
+        String curSeq = totalSequences[0];
+        int sequenceLength = curSeq.length();
+
+        int chart [][] = new int [sequenceLength][NUCLEOTIDES.length];
+
+        for (int seq = 0 ; seq < totalSequences.length; seq ++){
+            for (int position = 0 ; position < sequenceLength ; position++){
+                char nucleotide = totalSequences[seq].charAt(position);
+                int index = indexOfNucleotide(nucleotide);
+                chart [position][index]++;
+                
+            }
+        }
+        return chart;
+    }
+
+    /*
+    B this method calculates the probability of each nucleotide occuring at each position
+    R returns a 2d double array of each nucleotide's probability
+    P 2d int array is paramterized to access each nucleotide and it's position
+    */
+    public static double[][] probabilities(int[][] counts) {
+        int numRow = counts.length;
+        int numCol = counts[0].length;
+        double [][] probabilityChart = new double [numRow][numCol];
+        
+
+        int[] sums = new int[counts.length];
+        for (int i = 0; i < counts.length; i++) {
+            int currSum = 0;
+            for (int j = 0; j < counts[i].length; j++) {
+                currSum += counts[i][j];
+            }
+            sums[i] = currSum;
+        }
+        int totalSeq = sums[0];
+        double totalSeqDub = (double) totalSeq;
+
+        for (int row = 0 ; row < numRow; row ++){
+            for (int col = 0 ; col < numCol ;col++){
+                probabilityChart [row][col] = ((double) counts [row][col]) / totalSeq;
+                
+            }
+        }
+        return probabilityChart; 
+    }
+
+    /*
+    B this method predicts the likely sequence of a set of nucleotide based off their probability
+    R returns a 2d string array of the most likely dna sequences
+    P a 2d double array is paramterized to access the probabilities of each nucleotide
+    */
+    public static String[] result(double[][] probs) {
+        String [] highest = new String [probs.length];
+        
+        int numRow = probs.length;
+        int numCol = probs[0].length;
+        
+        for (int row = 0; row < numRow ; row ++){
+            String nucleotide = "";
+            double max = 0.0;
+            for(int col = 0; col < numCol; col++){
+                if (probs[row][col]>max){
+                    max = probs[row][col];
+                }
+            }
+    
+            for (int col = 0 ; col< numCol ; col++ ){
+                if (probs[row][col] == max){
+                    nucleotide += NUCLEOTIDES[col];
+                }
+            }
+            highest [row] = nucleotide;
+        }
+        return highest;
+    }
+}
