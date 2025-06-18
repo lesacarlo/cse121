@@ -1,0 +1,110 @@
+// Carlo Lesaca
+// 02/03/35
+// CSE 121
+// Project 2: Election simulator
+// TA: Maitreyi Parakh
+// This program simulates a yellow vs purple party election
+import java.util.*;
+public class ElectionSimulator {
+    public static final String PURPLE = "🟪";
+    public static final String YELLOW = "🟡";
+    public static final int NUM_SIMS = 5;
+    public static final int NUM_DISTS = 10;
+    public static final double PURPLE_POLL_AVG = 0.51;
+    public static final double YELLOW_POLL_AVG = 1.0 - PURPLE_POLL_AVG;
+    public static final double PURPLE_POLL_ERR = 0.05;
+    public static final double YELLOW_POLL_ERR = -1.0 * PURPLE_POLL_ERR;
+
+    public static void main(String[] args) {
+        //greeting
+        System.out.println("Welcome to the Election Simulator!");
+        System.out.println("Running " + NUM_SIMS + " simulations of " + NUM_DISTS +
+            " districts.");
+        System.out.println();
+        System.out.println("The Purple Party is polling at " + PURPLE_POLL_AVG * 100 +
+            "%");
+        System.out.println("The Yellow Party is polling at " + YELLOW_POLL_AVG * 100 +
+            "%");
+        System.out.println();
+
+        //simulator
+        Random rand = new Random();
+        double totalPurpleVotePercent = 0.0;
+        double totalYellowVotePercent = 0.0;
+        for (int i = 1; i <= NUM_SIMS; i++) { //to repeat the amount of simulations
+            System.out.println("Running Simulation " + i + ":");
+            int totalYellowVotes = 0;
+            int totalPurpleVotes = 0;
+
+            for (int j = 1; j <= NUM_DISTS; j++) { //to repeat the amount of districts
+                int turnout = rand.nextInt(1000) + 1;
+                double districtError = rand.nextGaussian() * 0.5;
+
+                double purpleVotePercent = districtError * PURPLE_POLL_ERR + PURPLE_POLL_AVG;
+                double purpleVoteCounts = turnout * purpleVotePercent;
+                int roundedPurpleVoteCounts = (int) Math.round(purpleVoteCounts);
+                totalPurpleVotes += roundedPurpleVoteCounts;
+
+
+                double yellowVotePercent = districtError * YELLOW_POLL_ERR + YELLOW_POLL_AVG;
+                double yellowVoteCounts = turnout * yellowVotePercent;
+                int roundedYellowVoteCounts = (int) Math.round(yellowVoteCounts);
+                totalYellowVotes += roundedYellowVoteCounts;
+
+
+                System.out.println("  District #" + j + " - " + PURPLE + " " +
+                    roundedPurpleVoteCounts + "  " + YELLOW + " " +
+                    roundedYellowVoteCounts);
+            }
+
+            int totalVotes = totalPurpleVotes + totalYellowVotes;
+
+            double purplePartyVotePercent = 100.0 * totalPurpleVotes / totalVotes;
+            double roundPurpleVotePercent = (double) Math.round(purplePartyVotePercent * 100) /
+                100;
+            double yellowPartyVotePercent = 100.0 * totalYellowVotes / totalVotes;
+            double roundYellowVotePercent = (double) Math.round(yellowPartyVotePercent * 100) /
+                100;
+
+            totalPurpleVotePercent += purplePartyVotePercent;
+            totalYellowVotePercent += yellowPartyVotePercent;
+
+            int totalPurpleEmoji = totalPurpleVotes / 100;
+            int totalYellowEmoji = totalYellowVotes / 100;
+
+            System.out.println();
+            System.out.println("Results for Simulation " + i + ":");
+            System.out.println("  Total Turnout: " + totalVotes);
+            System.out.println("  Purple Party's votes: " + totalPurpleVotes + " (" +
+                roundPurpleVotePercent + "%)");
+            System.out.println("  Yellow Party's votes: " + totalYellowVotes + " (" +
+                roundYellowVotePercent + "%)");
+            System.out.print("  Visualization: ");
+            for (int j = 1; j <= totalPurpleEmoji; j++) {
+                System.out.print(PURPLE);
+            }
+            System.out.println();
+            System.out.print("                 ");
+            for (int j = 1; j <= totalYellowEmoji; j++) {
+                System.out.print(YELLOW);
+            }
+            System.out.println();
+            System.out.println();
+            System.out.println();
+        }
+
+        double finalPurplePercent = totalPurpleVotePercent / NUM_SIMS;
+        double roundedFinalPurplePercent = (double) Math.round(finalPurplePercent * 100) / 100;
+        double finalYellowPercent = totalYellowVotePercent / NUM_SIMS;
+        double roundedFinalYellowPercent = (double) Math.round(finalYellowPercent * 100) / 100;
+
+        boolean purpleResult = roundedFinalPurplePercent >= 50.0;
+        boolean yellowResult = roundedFinalYellowPercent >= 50.0;
+
+        System.out.println("Election Simulator Results:");
+        System.out.println(PURPLE + " Win = " + purpleResult + " (" +
+            roundedFinalPurplePercent + "%)");
+        System.out.println(YELLOW + " Win = " + yellowResult + " (" +
+            roundedFinalYellowPercent + "%)");
+    }
+}
