@@ -1,0 +1,178 @@
+// Carlo Lesaca
+// 02/25/35
+// CSE 121
+// Prograaming Assignment 2: Social Network
+// TA: Maitreyi Parakh
+// This program determines the priority of a 
+// patient in the emergency room of a hospital
+
+import java.util.*;
+public class PatientPrioritizer {
+	public static final int HOSPITAL_ZIP = 12345;
+	public static void main(String[] args) {
+		Scanner console = new Scanner(System.in);
+
+		intro();
+
+		int numPatients = 0; //initialize 
+		int maxScore = 0; //initialize
+
+		String name = patientName(console); //"fencepost"
+		while (!name.equals("quit")) {
+			numPatients++; //to keep track of patients
+
+			int score = patientInfo(console); //to use as a parameter
+			System.out.println();
+
+			printPriority(score, name);
+
+			maxScore = Math.max(score, maxScore); //to calculate max score
+			score = maxScore;
+
+			name = patientName(console);
+		}
+		stats(numPatients, maxScore);
+	}
+
+	//this method tells the user the statistics of the survey after completion
+	//this method takes in the int number of patients, and the int max score as parameters
+	//this method returns nothing 
+	public static void stats(int numPatients, int maxScore) {
+		System.out.println("Statistics for the day:");
+		System.out.println("..." + numPatients + " patients were helped");
+		System.out.println("...the highest priority patient we saw had a score of " + maxScore);
+		System.out.println("Good job today!");
+	}
+
+	//this method tells the user what level priority they are based off their score
+	//this method takes in the int score found in patientInfo and the string name of the patient
+	//this method returns nothing
+	public static void printPriority(int score, String name) {
+		System.out.println("We have found patient " + name +
+							" to have a priority score of: " + score);
+		if (score >= 250) {
+			System.out.println("We have determined this patient is high priority,");
+			System.out.println("and it is advised to call an appropriate medical provider ASAP.");
+		} else if (score >= 150) {
+			System.out.println("We have determined this patient is medium priority.");
+			System.out.println("Please assign an appropriate medical provider to their case");
+			System.out.println("and check back in with the patient's condition in a little while.");
+		} else {
+			System.out.println("We have determined this patient is low priority.");
+			System.out.println("Please put them on the waitlist for" +
+							" when a medical provider becomes available.");
+		}
+
+		System.out.println();
+		System.out.println("Thank you for using our system!");
+		System.out.println("We hope we have helped you do your best!");
+		System.out.println();
+	}
+
+	//this method takes in values from the patientInfo method
+	//and calculates the user's score based off their inputs
+	//this method takes in int values: age, zipcode, pain, temperature;
+	//and string insurance as parameters
+	//this method returns an int value representing the user's priority score
+	public static int priorityScore(int age, int zipCode, String insurance, int pain, double temp) {
+		int zipCodeDigit = zipCode / 10000;
+		int zipCodeTwoDigit = zipCode / 1000;
+		int hospitalZipDigit = HOSPITAL_ZIP / 10000;
+		int hopsitalZipTwoDigit = HOSPITAL_ZIP / 1000;
+
+		int score = 100;
+		if (age < 12 || age >= 65) {
+			score += 40;
+		}
+		if (zipCodeDigit == hospitalZipDigit) {
+			score += 27;
+		}
+		if (zipCodeDigit == hospitalZipDigit &&
+			zipCodeTwoDigit == hopsitalZipTwoDigit) {
+			score += 20;
+		}
+		if (insurance.equals("y") || insurance.equals("yes")) {
+			score += 17;
+		}
+		if (pain >= 7) {
+			score += 100 + pain;
+		} else {
+			score += 10 + pain;
+		}
+		if (temp > 99.5) {
+			score += 30;
+		}
+		return score;
+	}
+
+	//this method asks a series of questions about the user's,
+	//age, zipcode, insurance status, pain level, and temperature
+	//these values are stored then called as a parameter in another method
+	//this method takes in scanner console as a parameter
+	//this method returns an integer value representing the user's priority score which will
+	//be used in determining their level of priority
+	public static int patientInfo(Scanner console) {
+		System.out.print("Patient age: ");
+		int age = console.nextInt();
+
+		System.out.print("Patient zip code: ");
+		int zipCode = console.nextInt();
+		while (!fiveDigits(zipCode)) {
+			System.out.print("Invalid zip code, enter valid zip code: ");
+			int newZipCode = console.nextInt();
+			zipCode = newZipCode;
+		}
+
+		System.out.print("Is our hospital \"in network\" for the patient's insurance? ");
+		String insurance = console.next();
+
+		System.out.print("Patient pain level (1-10): ");
+		int pain = console.nextInt();
+		while (pain > 10 || pain < 1) {
+			System.out.print("Invalid pain level, enter valid pain level (1-10): ");
+			int newPain = console.nextInt();
+			pain = newPain;
+		}
+
+		System.out.print("Patient temperature (in degrees Fahrenheit): ");
+		double temp = console.nextDouble();
+		int score = priorityScore(age, zipCode, insurance, pain, temp);
+		return score;
+
+	}
+
+	//this method asks a the user for the patient's name
+	//this method takes in a scanner as a parameters
+	//this method returns the patient's name as a string value
+	public static String patientName(Scanner console) {
+		System.out.println("Please enter the next patient's name or \"quit\" to end the program.");
+		System.out.print("Patient's name: ");
+		String name = console.next();
+		return name;
+	}
+
+	//this method prints out an introduction method before the patient completes the survey
+	//this method has no parameters
+	//this method does not return anything
+	public static void intro() {
+		System.out.println("Hello! We value you and your time, so we will help");
+		System.out.println("you prioritize which patients to see next!");
+		System.out.println("Please answer the following questions about the next patient so");
+		System.out.println("we can help you do your best work :)");
+		System.out.println();
+	}
+
+	//this method determines if a user's zipcode is 5 digits long
+	//the user's zipcode input is used as a parameters  
+	//the returned would be a boolean of true or false
+	public static boolean fiveDigits(int zipCode) {
+		zipCode = zipCode / 10000; // get first digit
+		if (zipCode == 0) { // has less than 5 digits
+			return false;
+		} else if (zipCode / 10 == 0) { // has 5 digits
+			return true;
+		} else { // has more than 5 digits
+			return false;
+		}
+	}
+}
