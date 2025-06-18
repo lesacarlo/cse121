@@ -1,1 +1,1 @@
-cse 121 programming assignments and creative projects
+cse 121 programming assignments
